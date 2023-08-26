@@ -51,4 +51,46 @@ class DbKonekcija
 
         return $tipovi;
     }
+
+    public function vratiZemljePorekla(): array
+    {
+        $upit = "SELECT * FROM zemlja_porekla";
+
+        $rezultat = $this->konekcija->query($upit);
+
+        $zemlje = [];
+
+        while($row = $rezultat->fetch_assoc()){
+            $zemlje[] = ZemljaPorekla::toEntity($row);
+        }
+
+        return $zemlje;
+    }
+
+    public function unesiKafu($naziv, $opis, $cena, $zemljaPorekla, $tip)
+    {
+        $upit = "INSERT INTO kafa VALUES (null, '$naziv', '$opis', $cena, $zemljaPorekla, $tip)";
+
+        $rezultat = $this->konekcija->query($upit);
+
+        return $rezultat;
+    }
+
+    public function izmeniCenu($id, $cena)
+    {
+        $upit = "UPDATE kafa SET cena = $cena WHERE kafa_id = $id";
+
+        $rezultat = $this->konekcija->query($upit);
+
+        return $rezultat;
+    }
+
+    public function obrisiKafu(mixed $id)
+    {
+        $upit = "DELETE FROM kafa WHERE kafa_id = $id";
+
+        $rezultat = $this->konekcija->query($upit);
+
+        return $rezultat;
+    }
 }

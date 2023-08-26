@@ -76,15 +76,52 @@
 					<div class="row d-flex justify-content-center">
 						<div class="menu-content pb-60 col-lg-10">
 							<div class="title text-center">
-								<h1 class="mb-10">Pretrazi kafu koju zelis</h1>
-								<div id="dugmiciZaPretragu">
+								<h1 class="mb-10">Administracija nasih napitaka</h1>
+								<p id="poruka">
 
-								</div>
+								</p>
 							</div>
 						</div>
 					</div>						
-					<div class="row" id="naseKafe">
+					<div class="row">
+						<div class="col-md-4">
+							<h3>Unesite novu kafu</h3>
+							<label for="naziv">Naziv</label>
+							<input type="text" id="naziv" class="form-control">
+							<label for="opis">Opis</label>
+							<input type="text" id="opis" class="form-control">
+							<label for="cena">Cena</label>
+							<input type="number" id="cena" class="form-control">
+							<label for="zemljaPorekla">Zemlja porekla</label>
+							<select id="zemljaPorekla" class="form-control">
+							</select>
+							<label for="tipKafe">Tip kafe</label>
+							<select id="tipKafe" class="form-control">
+							</select>
+							<hr>
+							<button onclick="unesiKafu()" class="btn btn-light" id="btnDodaj">Dodaj</button>
+						</div>
 
+						<div class="col-md-4">
+							<h3>Izmeni cenu kafe</h3>
+							<label for="idKafe">Izaberite kafu</label>
+							<select id="idKafe" class="form-control">
+							</select>
+							<label for="cenaIzmena">Cena</label>
+							<input type="number" id="cenaIzmena" class="form-control">
+
+							<hr>
+							<button onclick="izmeniKafu()" class="btn btn-light" id="btnIzmeni">Izmeni cenu kafe</button>
+						</div>
+
+						<div class="col-md-4">
+							<h3>Obrisite kafu sa sistema</h3>
+							<label for="idKafeBrisanje">Izaberite kafu</label>
+							<select id="idKafeBrisanje" class="form-control">
+							</select>
+							<hr>
+							<button onclick="obrisiKafu()" class="btn btn-light" id="btnObrisi">Obrisi kafu</button>
+						</div>
 					</div>
 				</div>	
 			</section>
@@ -145,77 +182,136 @@ Copyright &copy;<script>document.write(new Date().getFullYear());</script> All r
 			<script src="js/main.js"></script>
 
 			<script>
-				function pretrazi(id){
+				function popuniSelectTipovaKafa(){
 					$.ajax({
-						url: "server/pretrazi.php",
+						url: "server/vratiTipoveKafe.php",
+						method: "GET",
+						dataType: "json",
+						success: function(result){
+							console.log(result);
+							for(let i=0; i<result.length; i++){
+								$("#tipKafe").append(
+									`<option value="${result[i].id}">${result[i].tip}</option>`
+								);
+							}
+						},
+						error: function(xhr, status, error){
+							console.log(error);
+						}
+					});
+				}
+
+				function popuniSelectZemljiPorekla(){
+					$.ajax({
+						url: "server/vratiZemljePorekla.php",
+						method: "GET",
+						dataType: "json",
+						success: function(result){
+							console.log(result);
+							for(let i=0; i<result.length; i++){
+								$("#zemljaPorekla").append(
+									`<option value="${result[i].id}">${result[i].zemlja}</option>`
+								);
+							}
+						},
+						error: function(xhr, status, error){
+							console.log(error);
+						}
+					});
+				}
+
+				function popuniSelectKafa(){
+					$.ajax({
+						url: "server/vratiSveKafe.php",
+						method: "GET",
+						dataType: "json",
+						success: function(result){
+							console.log(result);
+							for(let i=0; i<result.length; i++){
+								$("#idKafe").append(
+									`<option value="${result[i].kafa_id}">${result[i].naziv}</option>`
+								);
+								$("#idKafeBrisanje").append(
+										`<option value="${result[i].kafa_id}">${result[i].naziv}</option>`
+								);
+							}
+						},
+						error: function(xhr, status, error){
+							console.log(error);
+						}
+					});
+				}
+
+				popuniSelectTipovaKafa();
+				popuniSelectZemljiPorekla();
+				popuniSelectKafa();
+
+				function unesiKafu(){
+					$.ajax({
+						url: "server/unesiKafu.php",
 						method: "POST",
 						data: {
-							id: id
+							naziv: $("#naziv").val(),
+							opis: $("#opis").val(),
+							cena: $("#cena").val(),
+							zemljaPorekla: $("#zemljaPorekla").val(),
+							tipKafe: $("#tipKafe").val()
 						},
 						success: function(data){
 							console.log(data);
-							let kafe = JSON.parse(data);
-							console.log(kafe);
-
-							let ispis = "";
-
-							for(let k of kafe){
-								ispis += `
-									<div class="col-lg-4">
-										<div class="single-menu">
-											<div class="title-div justify-content-between d-flex">
-												<h4>${k.naziv}</h4>
-												<p class="price float-right">
-													${k.cena} din
-												</p>
-											</div>
-											<p>
-												${k.opis}
-											</p>
-											<p>
-												Zemlja porekla: ${k.zemljaPorekla.zemlja}
-											</p>
-											<p>
-												Tip kafe: ${k.tipKafe.tip}
-											</p>
-										</div>
-									</div>
-								`;
-							}
-
-							$("#naseKafe").html(ispis);
+							$("#poruka").html(data);
+							$("#idKafeBrisanje").html("");
+							$("#idKafe").html("");
+							popuniSelectKafa();
 						},
 						error: function(xhr, status, error){
-							console.log(xhr.responseText);
+							console.log(error);
 						}
 					});
 				}
 
-				function vratiDugmadZaPretragu(){
+				function izmeniKafu(){
+
+					console.log($("#idKafe").val());
+					console.log($("#cenaIzmena").val());
+
 					$.ajax({
-						url: "server/vratiTipoveKafe.php",
+						url: "server/izmeniKafu.php",
 						method: "POST",
+						data: {
+							id: $("#idKafe").val(),
+							cena: $("#cenaIzmena").val()
+						},
 						success: function(data){
-							let tipovi = JSON.parse(data);
-
-							let ispis = '<button class="btn btn-light m-1" onclick="pretrazi(0)">Svi tipovi kafe</button>';
-
-							for(let k of tipovi){
-								ispis += `
-									<button class="btn btn-light m-1" onclick="pretrazi(${k.id})">${k.tip}</button>
-								`;
-							}
-
-							$("#dugmiciZaPretragu").html(ispis);
+							console.log(data);
+							$("#poruka").html(data);
 						},
 						error: function(xhr, status, error){
-							alert(xhr.responseText);
+							console.log(error);
 						}
 					});
 				}
 
-				vratiDugmadZaPretragu();
-				pretrazi(0);
+				function obrisiKafu(){
+					$.ajax({
+						url: "server/obrisiKafu.php",
+						method: "POST",
+						data: {
+							id: $("#idKafeBrisanje").val()
+						},
+						success: function(data){
+							console.log(data);
+							$("#poruka").html(data);
+							$("#idKafeBrisanje").html("");
+							$("#idKafe").html("");
+							popuniSelectKafa();
+						},
+						error: function(xhr, status, error){
+							console.log(error);
+						}
+					});
+				}
+
 			</script>
 		</body>
 	</html>
