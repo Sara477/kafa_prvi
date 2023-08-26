@@ -2,6 +2,6 @@
 /** @var DbKonekcija $konekcija */
 $konekcija = require_once '../autoload.php';
 
-$kafice = $konekcija->vratiSveKafe();
+$tipoviKafe = $konekcija->vratiTipoveKafe();
 
-echo json_encode($kafice);
+echo json_encode($tipoviKafe);
