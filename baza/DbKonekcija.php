@@ -6,7 +6,7 @@ class DbKonekcija
 
     public function __construct()
     {
-        $this->konekcija = new mysqli('localhost', 'root', '', 'kafa_prvi');
+        $this->konekcija = new mysqli('localhost', 'root', '', 'kafa_prvi',7338);
         $this->konekcija->set_charset('utf8');
     }
 
